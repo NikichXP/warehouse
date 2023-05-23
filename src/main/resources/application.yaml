@@ -1,1 +1,6 @@
-spring.data.mongodb.database: warehouse
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  data.mongodb:
+    uri: ${MONGODB_URI}
+    database: ${DB_NAME}
