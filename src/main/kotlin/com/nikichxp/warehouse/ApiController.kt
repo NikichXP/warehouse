@@ -73,7 +73,7 @@ data class ListOptions(
 ) {
     fun toQuery(): Query {
         val query = Query()
-        if (!this.showEmpty.get()) {
+        if (!this.showEmpty.orElse(true)) {
             query.addCriteria(Criteria.where(SKU::quantity.name).gt(0))
         }
         return query
