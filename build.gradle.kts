@@ -33,10 +33,7 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
-tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-	this.archiveFileName.set("app.jar")
+tasks.bootJar {
+	archiveFileName.set("app.jar")
 }
 
-tasks.withType<Test> {
-	useJUnitPlatform()
-}

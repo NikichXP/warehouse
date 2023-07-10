@@ -1,10 +1,18 @@
+FROM gradle:jdk11 as builder
+
+WORKDIR /app
+
+COPY build.gradle.kts .
+
+COPY src ./src
+RUN gradle clean build --no-daemon
+
 FROM openjdk:11-jre-slim
 
-ENV APP_HOME=/app
-ENV DB_NAME warehouse
-ENV MONGODB_URI=${MONGODB_URI}
-RUN mkdir $APP_HOME
-WORKDIR $APP_HOME
-COPY build/libs/app.jar $APP_HOME/app.jar
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/app.jar .
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+CMD ["java", "-jar", "app.jar"]
