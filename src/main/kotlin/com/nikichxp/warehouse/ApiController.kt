@@ -8,7 +8,6 @@ import kotlinx.coroutines.reactor.awaitSingle
 import org.bson.types.ObjectId
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -18,9 +17,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.update
-import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -47,6 +44,10 @@ class ApiController(
             GET("/{id}") {
                 val id = ObjectId(it.pathVariable("id"))
                 ServerResponse.ok().bodyValueAndAwait(storageService.getById(id))
+            }
+            DELETE("/{id}") {
+                val id = ObjectId(it.pathVariable("id"))
+                ServerResponse.ok().bodyValueAndAwait(storageService.deleteById(id))
             }
             PUT("/{id}") {
                 val id = ObjectId(it.pathVariable("id"))
@@ -103,6 +104,16 @@ class StorageService(
 
     fun listSKUs(parameters: ListOptions): Flow<SKU> {
         return dao.customFind(parameters)
+    }
+
+    suspend fun deleteById(id: ObjectId): Boolean {
+        val item = dao.findById(id) ?: throw ElementNotFoundException(id)
+        return if (item.quantity > 0) {
+            false
+        } else {
+            dao.delete(item)
+            true
+        }
     }
 
     suspend fun updateQuantity(id: ObjectId, quantity: Int) {
