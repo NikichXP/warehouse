@@ -20,11 +20,25 @@ import org.springframework.data.mongodb.core.update
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.config.CorsRegistry
+import org.springframework.web.reactive.config.WebFluxConfigurer
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyAndAwait
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.coRouter
+
+@Configuration
+class CorsGlobalConfiguration : WebFluxConfigurer {
+
+    override fun addCorsMappings(corsRegistry: CorsRegistry) {
+        corsRegistry
+            .addMapping("/**")
+            .allowedOrigins("*")
+            .allowedMethods("*")
+            .maxAge(3600)
+    }
+}
 
 @Configuration
 class ApiController(
