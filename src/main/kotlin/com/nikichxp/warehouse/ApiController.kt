@@ -47,6 +47,9 @@ class ApiController(
 
     @Bean
     fun router() = coRouter {
+        GET("/ping") {
+            ServerResponse.ok().bodyValueAndAwait("pong!~")
+        }
         path("storage").nest {
             GET("/list") {
                 val showEmpty = it.queryParam("showEmpty").map { it.toBoolean() }
@@ -167,7 +170,7 @@ interface SKUDao : SKURepository, SKUCustomRepo
 class SKUCustomRepoImpl(
     private val mongoTemplate: ReactiveMongoTemplate
 ) : SKUCustomRepo {
-    
+
     override fun customFind(parameters: ListOptions): Flow<SKU> {
         val query = parameters.toQuery()
         return mongoTemplate.find<SKU>(query).asFlow()
