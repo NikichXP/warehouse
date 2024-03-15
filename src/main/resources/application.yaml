@@ -1,6 +1,5 @@
 spring:
+  application:
+    name: warehouse
   config:
-    import: optional:file:.env[.properties]
-  data.mongodb:
-    uri: ${MONGODB_URI}
-    database: ${DB_NAME}
+    import: configserver:${CONFIG_SERVER}

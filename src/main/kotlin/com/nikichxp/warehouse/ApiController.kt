@@ -3,11 +3,14 @@ package com.nikichxp.warehouse
 import com.mongodb.client.result.UpdateResult
 import java.util.Optional
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.bson.types.ObjectId
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.convert.ConversionService
+import org.springframework.core.convert.converter.Converter
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -18,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.update
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.config.CorsRegistry
@@ -42,7 +46,8 @@ class CorsGlobalConfiguration : WebFluxConfigurer {
 
 @Configuration
 class ApiController(
-    private val storageService: StorageService
+    private val storageService: StorageService,
+    private val conversionService: ConversionService
 ) {
 
     @Bean
@@ -51,12 +56,16 @@ class ApiController(
             ServerResponse.ok().bodyValueAndAwait("pong!~")
         }
         path("storage").nest {
-            GET("/list") {
-                val showEmpty = it.queryParam("showEmpty").map { it.toBoolean() }
+            GET("/list") { req ->
+                val showEmpty = req.queryParam("showEmpty").map { it.toBoolean() }
                 val options = ListOptions(
                     showEmpty = showEmpty
                 )
-                ServerResponse.ok().bodyAndAwait(storageService.listSKUs(options))
+                ServerResponse.ok().bodyAndAwait(
+                    storageService
+                        .listSKUs(options)
+                        .map { conversionService.convert(it, SKUDTO::class.java)!! }
+                )
             }
             GET("/{id}") {
                 val id = ObjectId(it.pathVariable("id"))
@@ -143,6 +152,28 @@ class StorageService(
 }
 
 data class NewSKURequest(val name: String, val quantity: Int)
+
+data class SKUDTO(
+    val id: String,
+    val name: String,
+    val quantity: Int,
+    val tags: Set<String>
+) {
+    val isDTO = true
+}
+
+@Component
+class SKUConverter : Converter<SKU, SKUDTO> {
+
+    override fun convert(sku: SKU): SKUDTO {
+        return SKUDTO(
+            id = sku.id,
+            name = sku.name,
+            quantity = sku.quantity,
+            tags = sku.tags
+        )
+    }
+}
 
 data class SKU(
     var name: String,
