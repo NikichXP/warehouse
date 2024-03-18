@@ -1,0 +1,20 @@
+### Create an entity
+POST http://localhost:8080/storage/
+Content-Type: application/json
+user: 34080460
+
+{
+  "name": "yet another test entity",
+  "quantity": 1,
+  "tags": ["abc", "def", "xyz"]
+}
+
+### List entities
+GET http://localhost:8080/storage/list
+Content-Type: application/json
+user: 34080460
+
+### Get an entity
+GET http://localhost:8080/storage/65f87a7ee77d4e1c56cb0243
+Content-Type: application/json
+user: 34080460
