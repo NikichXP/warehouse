@@ -72,7 +72,7 @@ class ApiRouter(
                 storageService.updateQuantity(id, quantity, userId)
                 ServerResponse.ok().bodyValueAndAwait("Success")
             }
-            POST("/") {
+            POST({ true }) {
                 val userId = getUser(it)
                 val createdEntity = storageService.addSKU(it.awaitBody(), userId)
                 ServerResponse.ok().bodyValueAndAwait(conversionService.convert(createdEntity, SKUDTO::class.java)!!)
