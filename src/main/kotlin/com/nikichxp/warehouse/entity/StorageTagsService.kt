@@ -1,7 +1,7 @@
 package com.nikichxp.warehouse.entity
 
 import com.nikichxp.warehouse.data.SKUDao
-import com.nikichxp.warehouse.distinct
+import com.nikichxp.warehouse.util.distinct
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
